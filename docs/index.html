@@ -254,6 +254,10 @@ footer a { color: var(--text-dim); }
   <a class="brand" href="./" style="text-decoration:none"><b>AEO<i>·</i>GEO<i>·</i>SEO</b></a>
   <span class="brand"><span>generator</span></span>
   <div class="spacer"></div>
+  <a class="ghost" href="https://aeo-geo-seo-generator.avantigroupai.workers.dev/">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+    Analyse a URL
+  </a>
   <a class="ghost" href="https://github.com/avantigroupai/aeo-geo-seo-generator">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2A10 10 0 0 0 8.8 21.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.2-.2-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.8-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/></svg>
     Source
@@ -275,11 +279,11 @@ footer a { color: var(--text-dim); }
     what it found — and then tells you, item by item, what no generated file can fix.
   </p>
   <div class="cta">
-    <a class="primary" href="https://github.com/avantigroupai/aeo-geo-seo-generator">
-      Get the source
+    <a class="primary" href="https://aeo-geo-seo-generator.avantigroupai.workers.dev/">
+      Analyse a URL
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </a>
-    <a class="ghost" href="#run">Run it locally</a>
+    <a class="ghost" href="https://github.com/avantigroupai/aeo-geo-seo-generator">Get the source</a>
     <a class="ghost" href="#handover">See the handover</a>
   </div>
 
@@ -440,10 +444,13 @@ footer a { color: var(--text-dim); }
 
 <section class="wrap" id="run">
   <h2 id="how-to-run">How do I run it?</h2>
-  <p class="sub">one dependency, no build step, nothing leaves your machine except the page fetch</p>
+  <p class="sub">hosted on Cloudflare Workers, or locally with one dependency and no build step</p>
   <p class="answer">
-    Clone the repository, install, start. It needs Node 20 or newer, and the only dependency is
-    <span class="file">cheerio</span>.
+    Two ways. Paste a URL into the hosted version at
+    <a href="https://aeo-geo-seo-generator.avantigroupai.workers.dev/">aeo-geo-seo-generator.avantigroupai.workers.dev</a>
+    — same code, running at the edge. Or clone the repository and run it yourself, which is the
+    right option when you want the audit to stay on your machine. It needs Node 20 or newer, and
+    the only dependency is <span class="file">cheerio</span>.
   </p>
   <pre>git clone https://github.com/avantigroupai/aeo-geo-seo-generator.git
 cd aeo-geo-seo-generator
@@ -452,7 +459,7 @@ npm install &amp;&amp; npm start</pre>
 
   <div class="note">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
-    <p>This page is documentation, not the live tool. The audit fetches third-party URLs server-side — with a redirect chain tracker and an SSRF guard — which a static site cannot do from a browser. Run it locally, or host <span class="file">server.js</span> anywhere Node runs.</p>
+    <p>This page is documentation; the app is at <a href="https://aeo-geo-seo-generator.avantigroupai.workers.dev/">the Worker URL</a>. It cannot live on GitHub Pages, because the audit fetches third-party URLs server-side — redirect chain, robots.txt, llms.txt, SSRF guard — which a browser cannot do across origins. One thing the hosted version cannot do either: direct SFTP deployment needs a shell, so use the file pack, the deploy script or the CLI for that.</p>
   </div>
 </section>
 

@@ -1,10 +1,7 @@
-import dns from 'node:dns/promises';
-import net from 'node:net';
-
 const UA =
   'Mozilla/5.0 (compatible; AEO-GEO-SEO-Generator/1.0; +https://github.com/local/aeo-geo-seo-generator)';
 
-const ALLOW_PRIVATE = process.env.ALLOW_PRIVATE === '1';
+const ALLOW_PRIVATE = globalThis.process?.env?.ALLOW_PRIVATE === '1';
 
 export class FetchError extends Error {
   constructor(message, code = 'FETCH_FAILED') {
@@ -35,8 +32,18 @@ export function normaliseUrl(input) {
   return url;
 }
 
+/* Node's net.isIP is not available on every runtime this ships to (Workers has no node:net),
+   and the shape of an IP literal is not worth a dependency. */
+const IPV4_RE = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+const isIPv4 = (s) => {
+  const m = IPV4_RE.exec(String(s));
+  return Boolean(m) && m.slice(1).every((octet) => Number(octet) <= 255);
+};
+const isIPv6 = (s) => String(s).includes(':') && /^[0-9a-f:.]+$/i.test(String(s));
+const isIP = (s) => isIPv4(s) || isIPv6(s);
+
 function isPrivateAddress(ip) {
-  if (net.isIPv4(ip)) {
+  if (isIPv4(ip)) {
     const [a, b] = ip.split('.').map(Number);
     if (a === 10 || a === 127 || a === 0) return true;
     if (a === 172 && b >= 16 && b <= 31) return true;
@@ -51,6 +58,42 @@ function isPrivateAddress(ip) {
   return false;
 }
 
+/*
+ * Resolution goes over DNS-over-HTTPS rather than node:dns, because this runs both as a Node
+ * server and as a Cloudflare Worker, and only one of those has a resolver. `fetch` is the one
+ * primitive both runtimes agree on.
+ */
+const DOH_ENDPOINT = 'https://cloudflare-dns.com/dns-query';
+const DNS_TTL_MS = 5 * 60 * 1000;
+const dnsCache = new Map();
+
+async function resolveHost(host, timeoutMs = 4000) {
+  const hit = dnsCache.get(host);
+  if (hit && Date.now() - hit.at < DNS_TTL_MS) return hit.addresses;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const ask = async (type) => {
+    const res = await fetch(`${DOH_ENDPOINT}?name=${encodeURIComponent(host)}&type=${type}`, {
+      headers: { accept: 'application/dns-json' },
+      signal: controller.signal,
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    // Type 1 = A, 28 = AAAA. CNAME hops appear in the same Answer array and are skipped.
+    return (data.Answer || []).filter((a) => a.type === 1 || a.type === 28).map((a) => a.data);
+  };
+
+  try {
+    const [v4, v6] = await Promise.all([ask('A'), ask('AAAA')]);
+    const addresses = [...v4, ...v6];
+    if (addresses.length) dnsCache.set(host, { addresses, at: Date.now() });
+    return addresses;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /** Refuse to fetch loopback / LAN targets unless explicitly allowed (SSRF guard). */
 async function assertPublicHost(hostname) {
   if (ALLOW_PRIVATE) return;
@@ -59,14 +102,16 @@ async function assertPublicHost(hostname) {
     throw new FetchError('Refusing to fetch a local address. Set ALLOW_PRIVATE=1 to override.', 'PRIVATE_HOST');
   }
   let addresses = [];
-  if (net.isIP(host)) {
+  if (isIP(host)) {
     addresses = [host];
   } else {
     try {
-      addresses = (await dns.lookup(host, { all: true })).map((a) => a.address);
+      addresses = await resolveHost(host);
     } catch {
       throw new FetchError(`Could not resolve "${hostname}".`, 'DNS_FAILED');
     }
+    // Fail closed: an unresolvable host must not slip past the guard on an empty answer.
+    if (!addresses.length) throw new FetchError(`Could not resolve "${hostname}".`, 'DNS_FAILED');
   }
   if (addresses.some(isPrivateAddress)) {
     throw new FetchError('Refusing to fetch a private network address. Set ALLOW_PRIVATE=1 to override.', 'PRIVATE_HOST');
@@ -112,9 +157,9 @@ export async function fetchDocument(url, { timeoutMs = 20000, maxRedirects = 8, 
       continue;
     }
 
-    const buf = Buffer.from(await res.arrayBuffer());
-    const bytes = buf.length;
-    const body = buf.subarray(0, maxBytes).toString('utf8');
+    const raw = new Uint8Array(await res.arrayBuffer());
+    const bytes = raw.length;
+    const body = new TextDecoder('utf-8').decode(raw.subarray(0, maxBytes));
     return {
       finalUrl: current.href,
       status: res.status,
