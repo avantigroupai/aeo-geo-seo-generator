@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AEO · GEO · SEO Generator</title>
+<meta name="description" content="Audit any URL for search, answer-engine and generative-engine visibility — then generate the schema, meta and content blocks that fix it.">
+<link rel="stylesheet" href="/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>◎</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <b>AEO<i>·</i>GEO<i>·</i>SEO</b>
+      <span>generator</span>
+    </a>
+    <div class="topbar-spacer"></div>
+    <button class="ghost-btn" id="newScan" hidden>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      New scan
+    </button>
+    <button class="ghost-btn" id="themeToggle" title="Toggle theme">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      Theme
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- ------------------------------------------------------------- hero -->
+  <section id="hero" class="wrap hero">
+    <h1>Get found by search engines, answer engines and <em>the models</em>.</h1>
+    <p class="lede">
+      Point it at any URL. It fetches the page, audits 45+ signals across classic SEO, answer-engine
+      readiness and generative-engine citability — then writes the JSON-LD, meta, <code>llms.txt</code>
+      and content blocks you paste back in.
+    </p>
+
+    <form class="searchbar" id="scanForm">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+      <input id="urlInput" type="text" placeholder="example.com/your-best-page" autocomplete="url" spellcheck="false" autofocus>
+      <button class="primary-btn" type="submit" id="scanBtn">
+        Analyse
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </form>
+
+    <div class="examples">
+      <span>Try</span>
+      <button class="chip" data-example="https://www.anthropic.com/news">anthropic.com/news</button>
+      <button class="chip" data-example="https://en.wikipedia.org/wiki/Search_engine_optimization">wikipedia.org — SEO</button>
+      <button class="chip" data-example="https://developer.mozilla.org/en-US/docs/Web/HTML">MDN — HTML</button>
+    </div>
+
+    <div class="pillars">
+      <article class="pillar">
+        <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></span>
+        <h3><small>SEO</small>Crawl, index, rank</h3>
+        <p>Titles, canonicals, robots rules, sitemaps, structured data, heading order, link graph, mobile and render-blocking checks.</p>
+      </article>
+      <article class="pillar">
+        <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4v.6"/><circle cx="12" cy="12" r="9"/><path d="M12 17h.01"/></svg></span>
+        <h3><small>AEO</small>Be the answer</h3>
+        <p>Question headings, answer-first paragraphs, FAQ and HowTo markup, snippet formats, readability and context-free sentences.</p>
+      </article>
+      <article class="pillar">
+        <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg></span>
+        <h3><small>GEO</small>Get cited by LLMs</h3>
+        <p>AI-crawler access, <code>llms.txt</code>, entity and author signals, statistics density, sourced claims and retrieval chunk sizing.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------ error -->
+  <div class="wrap"><div id="errorBox" class="notice hidden">
+    <span class="status-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16h.01"/></svg></span>
+    <div><b id="errorTitle">Could not analyse that URL</b><p id="errorText"></p></div>
+  </div></div>
+
+  <!-- --------------------------------------------------------- loading -->
+  <div class="wrap"><div id="loading" class="skeleton hidden">
+    <div style="width:38%"></div><div style="width:72%"></div><div style="width:55%"></div><div style="width:64%"></div>
+  </div></div>
+
+  <!-- --------------------------------------------------------- results -->
+  <section id="results" class="hidden">
+    <div class="wrap result-head">
+      <div class="urlline" id="urlLine"></div>
+      <div class="dials" id="dials"></div>
+      <div class="tabs" role="tablist" id="tabs"></div>
+    </div>
+    <div class="wrap panel-body" id="panelBody"></div>
+  </section>
+</main>
+
+<footer class="foot"><div class="wrap">
+  <span>Runs locally · nothing leaves your machine except the page fetch.</span>
+  <span>Weighted scores, not guesses — every check states what it found and what to do.</span>
+</div></footer>
+
+<div class="toast" id="toast"></div>
+<script src="/app.js" type="module"></script>
+</body>
+</html>

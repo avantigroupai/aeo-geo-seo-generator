@@ -1,0 +1,19 @@
+{
+  "name": "aeo-geo-seo-generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Audit any website for SEO, AEO (answer engines) and GEO (generative engines), then generate the fixes.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test \"tests/*.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}
