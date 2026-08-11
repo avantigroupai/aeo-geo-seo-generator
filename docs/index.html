@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AEO · GEO · SEO Generator — make a website readable by agents</title>
+<meta name="description" content="Audit any URL across search, answer engines and generative engines. Generate the JSON-LD, llms.txt, robots.txt and content blocks that fix it — and get an honest handover of everything no generated file can fix.">
+<link rel="canonical" href="https://avantigroupai.github.io/aeo-geo-seo-generator/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AEO · GEO · SEO Generator">
+<meta property="og:description" content="Websites are becoming resources agents use, not pages humans visit. This audits any URL for that shift, generates the fixes, and tells you what still needs a person.">
+<meta property="og:url" content="https://avantigroupai.github.io/aeo-geo-seo-generator/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>◎</text></svg>">
+<style>
+:root {
+  --bg: #0a0b0d; --bg-soft: #0e1013; --panel: #121418; --panel-2: #171a20;
+  --line: #23262e; --line-soft: #1a1d23;
+  --text: #e9ebef; --text-dim: #a4abb8; --text-faint: #6f7683;
+  --accent: #d6f265; --accent-ink: #12140b;
+  --pass: #5ec98d; --warn: #e5b04a; --fail: #f0655d; --info: #7fb2f0;
+  --radius: 14px; --radius-sm: 9px;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, ui-serif, serif;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f6f3; --bg-soft: #efefea; --panel: #ffffff; --panel-2: #f7f7f4;
+    --line: #e2e2db; --line-soft: #ecece5;
+    --text: #16181d; --text-dim: #5a616d; --text-faint: #8b919c;
+    --accent: #9fc51f; --accent-ink: #101204;
+    --pass: #2f9c62; --warn: #b4801d; --fail: #cf4038; --info: #2f6fb5;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: radial-gradient(1200px 600px at 80% -10%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%), var(--bg);
+  color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+svg { display: block; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+header.top { border-bottom: 1px solid var(--line-soft); background: color-mix(in srgb, var(--bg) 82%, transparent); position: sticky; top: 0; backdrop-filter: blur(10px); z-index: 10; }
+header.top .wrap { display: flex; align-items: baseline; gap: 12px; height: 62px; }
+.brand b { font-family: var(--serif); font-size: 20px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+.brand b i { font-style: normal; color: var(--accent); }
+.brand span { color: var(--text-faint); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
+.spacer { flex: 1; }
+.ghost {
+  display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
+  border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px;
+  color: var(--text-dim); font-size: 13px; background: var(--panel);
+}
+.ghost:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+
+.hero { padding: 78px 0 20px; }
+.hero h1 { font-family: var(--serif); font-size: clamp(34px, 5.4vw, 54px); line-height: 1.08; letter-spacing: -0.02em; font-weight: 600; margin: 0 0 22px; max-width: 20ch; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.lede { color: var(--text-dim); font-size: 18px; max-width: 62ch; margin: 0 0 18px; }
+.cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
+.primary {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 14px;
+  border-radius: 999px; padding: 11px 20px;
+}
+.primary:hover { filter: brightness(1.08); }
+
+section { padding: 46px 0; }
+h2 { font-family: var(--serif); font-size: 27px; letter-spacing: -0.015em; margin: 0 0 6px; font-weight: 600; }
+h2 + .sub { color: var(--text-faint); font-size: 13.5px; margin: 0 0 22px; letter-spacing: 0.02em; }
+h3 { font-size: 15px; margin: 0 0 6px; letter-spacing: -0.005em; }
+p { max-width: 74ch; }
+
+.rule { border: 0; border-top: 1px solid var(--line-soft); margin: 0; }
+
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 20px; }
+.card p { margin: 0; color: var(--text-dim); font-size: 14px; }
+.card .kicker { color: var(--text-faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; display: block; margin-bottom: 8px; }
+.card .icon { color: var(--accent); margin-bottom: 12px; }
+
+.quote {
+  border-left: 2px solid var(--accent); padding: 2px 0 2px 18px; margin: 0 0 26px;
+  font-family: var(--serif); font-size: 21px; line-height: 1.45; color: var(--text); max-width: 42ch;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--radius); overflow: hidden; }
+th { text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--line-soft); }
+td { padding: 11px 16px; border-bottom: 1px solid var(--line-soft); vertical-align: top; color: var(--text-dim); }
+tr:last-child td { border-bottom: 0; }
+td code, .file { font-family: var(--mono); font-size: 12.5px; color: var(--text); white-space: nowrap; }
+.tablewrap { overflow-x: auto; }
+
+.buckets { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.bucket { background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 20px; }
+.bucket .n { font-family: var(--serif); font-size: 13px; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; display: block; margin-bottom: 8px; }
+.bucket p { margin: 0; color: var(--text-dim); font-size: 14px; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.tag { font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--line); border-radius: 5px; padding: 2px 7px; color: var(--text-faint); }
+.tag.own { color: var(--info); border-color: color-mix(in srgb, var(--info) 40%, var(--line)); }
+.tag.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, var(--line)); }
+
+pre {
+  background: var(--panel); border: 1px solid var(--line-soft); border-radius: var(--radius);
+  padding: 18px 20px; overflow-x: auto; margin: 0;
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--text-dim);
+}
+pre b { color: var(--text); font-weight: 600; }
+pre .c { color: var(--text-faint); }
+pre .a { color: var(--accent); }
+pre .w { color: var(--warn); }
+.caption { color: var(--text-faint); font-size: 12.5px; margin: 10px 0 0; }
+
+.note {
+  display: flex; gap: 13px; align-items: flex-start;
+  border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius);
+  padding: 16px 18px; margin-top: 22px;
+}
+.note svg { flex: none; color: var(--text-faint); margin-top: 2px; }
+.note p { margin: 0; font-size: 14px; color: var(--text-dim); }
+
+footer { border-top: 1px solid var(--line-soft); padding: 26px 0 60px; color: var(--text-faint); font-size: 13px; }
+footer .wrap { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+footer a { color: var(--text-dim); }
+
+@media (max-width: 860px) {
+  .cols, .buckets { grid-template-columns: 1fr; }
+  .hero { padding: 52px 0 10px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="./" style="text-decoration:none"><b>AEO<i>·</i>GEO<i>·</i>SEO</b></a>
+  <span class="brand"><span>generator</span></span>
+  <div class="spacer"></div>
+  <a class="ghost" href="https://github.com/avantigroupai/aeo-geo-seo-generator">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2A10 10 0 0 0 8.8 21.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.2-.2-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.8-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/></svg>
+    Source
+  </a>
+</div></header>
+
+<main>
+
+<div class="wrap hero">
+  <h1>Your website is about to be read mostly by <em>machines</em>.</h1>
+  <p class="lede">
+    The old bargain was simple: a crawler took your content, search sent you a human, you monetised
+    the attention. That breaks the moment an agent reads the page, answers the question, and the
+    visit never happens.
+  </p>
+  <p class="lede">
+    Point this at any URL. It fetches the page the way an AI crawler actually sees it, audits
+    <b>45+ weighted signals</b> across three lenses, generates the markup and copy blocks that fix
+    what it found — and then tells you, item by item, what no generated file can fix.
+  </p>
+  <div class="cta">
+    <a class="primary" href="https://github.com/avantigroupai/aeo-geo-seo-generator">
+      Get the source
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <a class="ghost" href="#run">Run it locally</a>
+    <a class="ghost" href="#handover">See the handover</a>
+  </div>
+</div>
+
+<hr class="rule">
+
+<section class="wrap">
+  <h2>Three lenses, one fetch</h2>
+  <p class="sub">Each check reports what it found, why it matters and what to do — and carries a weight, so the 0–100 score reflects impact rather than check count.</p>
+  <div class="cols">
+    <article class="card">
+      <span class="icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></span>
+      <span class="kicker">SEO</span>
+      <h3>Crawl, index, rank</h3>
+      <p>Titles, canonicals, the robots.txt verdict for Googlebot on <i>this</i> path, sitemap discovery, Open Graph, redirect chains, heading order, alt coverage, structured-data validity, render-blocking scripts, hreflang.</p>
+    </article>
+    <article class="card">
+      <span class="icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4v.6"/><path d="M12 17h.01"/></svg></span>
+      <span class="kicker">AEO</span>
+      <h3>Be the answer</h3>
+      <p>FAQ and HowTo markup, question-phrased headings and whether a direct answer follows each one, answer-first openings, TL;DR blocks, readability, paragraph chunking, speakable markup — and sentences that lose their meaning the moment they are extracted.</p>
+    </article>
+    <article class="card">
+      <span class="icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg></span>
+      <span class="kicker">GEO</span>
+      <h3>Get cited by name</h3>
+      <p>Per-vendor AI crawler access, <span class="file">/llms.txt</span>, entity identity and <span class="file">sameAs</span>, named authorship, freshness, statistics density, sourced claims, quotable statements, original-research signals, server-rendered content, retrieval chunk sizing.</p>
+    </article>
+  </div>
+
+  <div class="note">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+    <p>The fetch is a plain HTTP request with no JavaScript execution — deliberately, because that is what most AI crawlers see. A low word count here is a real finding, not a limitation of the tool.</p>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section class="wrap">
+  <h2>What it writes for you</h2>
+  <p class="sub">Every artifact regenerates against the brand, author, entity profiles and dates you supply.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th style="width:58%">Artifact</th><th>File</th></tr></thead>
+    <tbody>
+      <tr><td>Connected JSON-LD <span class="file">@graph</span> — Organization, WebSite, BreadcrumbList, WebPage, Article, FAQPage</td><td><span class="file">schema-graph.html</span></td></tr>
+      <tr><td>FAQPage on its own</td><td><span class="file">schema-faq.html</span></td></tr>
+      <tr><td>HowTo steps, when procedural content is detected</td><td><span class="file">schema-howto.html</span></td></tr>
+      <tr><td>Optimised <span class="file">&lt;head&gt;</span> — rewritten title and description, canonical, robots directives, OG, X cards, freshness stamps</td><td><span class="file">head.html</span></td></tr>
+      <tr><td>A curated markdown map for language models</td><td><span class="file">llms.txt</span></td></tr>
+      <tr><td>robots.txt, maximum reach — every AI crawler allowed</td><td><span class="file">robots.txt</span></td></tr>
+      <tr><td>robots.txt, cite-yes-train-no — retrieval bots in, training bots out</td><td><span class="file">robots-balanced.txt</span></td></tr>
+      <tr><td>Answer-first opening, key-takeaways box, visible FAQ, anchored TOC</td><td><span class="file">*.html</span></td></tr>
+      <tr><td>Prioritised action plan and the full machine-readable report</td><td><span class="file">action-plan.md</span>, <span class="file">report.json</span></td></tr>
+      <tr><td><b style="color:var(--text)">The handover — what the files close, and what does not</b></td><td><span class="file">handover.md</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="rule">
+
+<section class="wrap" id="handover">
+  <h2>And what it refuses to write</h2>
+  <p class="sub">the part that makes this a mandate rather than a download</p>
+
+  <p class="quote">The files are the floor, not the ceiling. Machine-readability takes an afternoon. Being worth citing takes a quarter.</p>
+
+  <p>
+    Every failing check is routed into exactly one of two buckets: one a generated file closes, and
+    one that needs a person. Nothing is quietly counted as done. A generated file whose prerequisite
+    is not met ships with the blocker attached rather than pretending to be finished.
+  </p>
+
+  <div class="buckets" style="margin-top:24px">
+    <div class="bucket">
+      <span class="n">1 — Closed by the files</span>
+      <p>The finding, the file that fixes it, and exactly where it goes. Paste it and the finding goes away. This is the fast half — and the half that gets mistaken for the whole job.</p>
+      <div class="tags"><span class="tag">schema-graph.html</span><span class="tag">head.html</span><span class="tag">llms.txt</span></div>
+    </div>
+    <div class="bucket">
+      <span class="n">2 — We need this from you</span>
+      <p>Missing brand, author, entity profiles and dates — plus every <span class="file">TODO</span> placeholder still sitting in a generated file. The placeholders are deliberate: FAQ schema whose answers are not visible on the page is invalid, and inventing your answers would be worse than leaving the gap.</p>
+      <div class="tags"><span class="tag own">Profile</span><span class="tag warn">TODO placeholders</span></div>
+    </div>
+    <div class="bucket">
+      <span class="n">3 — Still yours</span>
+      <p>The work no generator closes, each with an owner, an effort and a plain statement of <i>why</i> a file cannot do it. Statistics, sourced claims, original research, server-rendered copy, alt text, readability, comparison coverage.</p>
+      <div class="tags"><span class="tag own">Editorial</span><span class="tag own">Engineering</span><span class="tag own">Research</span><span class="tag own">Leadership</span></div>
+    </div>
+    <div class="bucket">
+      <span class="n">4 — Decisions only you can make</span>
+      <p>Which AI crawlers you admit — reach, cite-yes-train-no, or meter at the edge and return HTTP 402 to unpaid agents. Whether you publish the whole answer. Who signs the page. Not technical questions: the default is a position too.</p>
+      <div class="tags"><span class="tag">robots posture</span><span class="tag">answer depth</span><span class="tag">byline</span></div>
+    </div>
+  </div>
+
+  <h3 style="margin:34px 0 10px">Real output</h3>
+  <pre><span class="c"># Agent-readiness handover</span>
+
+<b>Page:</b> https://developer.mozilla.org/en-US/docs/Web/HTML
+<b>Scores:</b> SEO 85 · AEO 57 · GEO 52 (overall 65, grade D)
+
+20 open findings. 11 close with a file in this pack. 9 need a person.
+32 sentences in the generated files are marked TODO on purpose.
+
+<span class="a">## 1 — Closed by the generated files</span>
+
+- [ ] <b>Entity identity (Organization/Person)</b> → `schema-graph.html`
+  - Now: No Organization or Person schema
+  - Where: Already in the @graph as the Organization node.
+  - <span class="w">⚠ Blocked:</span> No sameAs profiles. Without Wikipedia, LinkedIn, Crunchbase
+    or GitHub URLs, the Organization node names an entity no model can resolve.
+
+<span class="a">## 3 — Still yours</span>
+
+- [ ] <b>Quantitative claims</b> — Research, ~days (GEO, failing, high impact)
+  - Now: 0 statistics (0.0 per 1,000 words) · 2 numbers total
+  - Do: Concrete figures are what generative engines lift. Add percentages,
+    sample sizes and dated benchmarks — each with its source.
+  - Why we cannot do it for you: Models quote numbers. We will not invent them,
+    and a fabricated statistic is the single fastest way to lose a citation
+    permanently.
+
+- [ ] <b>Original data or research</b> — Leadership, ~weeks (GEO, weak, medium impact)
+  - Why we cannot do it for you: Original data is the only durable reason for a
+    model to name you rather than paraphrase you. It is the biggest item on this
+    list and the only one no competitor can copy.
+
+<span class="c">### Who owns what</span>
+- <b>Editorial:</b> 5 items   - <b>Research:</b> 2 items   - <b>Leadership:</b> 2 items</pre>
+  <p class="caption">Trimmed from a real run against developer.mozilla.org. Nothing in the handover is hand-written for the demo.</p>
+</section>
+
+<hr class="rule">
+
+<section class="wrap" id="run">
+  <h2>Run it</h2>
+  <p class="sub">one dependency, no build step, nothing leaves your machine except the page fetch</p>
+  <pre>git clone https://github.com/avantigroupai/aeo-geo-seo-generator.git
+cd aeo-geo-seo-generator
+npm install &amp;&amp; npm start</pre>
+  <p style="margin-top:16px">Then open <span class="file">http://localhost:4321</span> and paste a URL.</p>
+
+  <div class="note">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+    <p>This page is documentation, not the live tool. The audit fetches third-party URLs server-side — with a redirect chain tracker and an SSRF guard — which a static site cannot do from a browser. Run it locally, or host <span class="file">server.js</span> anywhere Node runs.</p>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap">
+  <span>Built by Avanti Group AI.</span>
+  <span>·</span>
+  <a href="https://github.com/avantigroupai/aeo-geo-seo-generator">Source on GitHub</a>
+  <span>·</span>
+  <span>Weighted scores, not guesses.</span>
+</div></footer>
+
+</body>
+</html>
