@@ -130,6 +130,13 @@ footer a { color: var(--text-dim); }
   .cols, .buckets { grid-template-columns: 1fr; }
   .hero { padding: 52px 0 10px; }
 }
+@media (max-width: 620px) {
+  .wrap { padding: 0 16px; }
+  /* The "generator" label is the first thing to go — the Source button must not clip. */
+  .brand span { display: none; }
+  header.top .wrap { gap: 8px; }
+  .ghost { padding: 7px 12px; }
+}
 </style>
 </head>
 <body>
