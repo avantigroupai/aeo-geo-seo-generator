@@ -14,6 +14,9 @@ and commercial decisions begin.
 | **AEO** | Can a machine lift a correct, self-contained answer off it?   |
 | **GEO** | Will a language model ingest it, trust it, and cite it by name? |
 
+**Site:** <https://avantigroupai.github.io/aeo-geo-seo-generator/> — documentation, and a page built to
+pass this tool's own audit.
+
 ## Run it
 
 ```bash
